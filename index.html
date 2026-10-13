@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f0f5f0">
+<meta name="color-scheme" content="light dark">
+<title>Morning Belle | Rewards Training</title>
+<!--
+  REWARDS RELAUNCH TRAINING, built on the Morning Belle starter kit v3.1.
+  Lives in the Greenhouse tools folder. The pill top left returns to the Greenhouse.
+  Quiz questions live in the QUIZ array near the bottom of the file.
+-->
+<script>
+(function () {
+  var t = null;
+  try { t = localStorage.getItem('mb-theme'); } catch (e) {}
+  if (t !== 'light' && t !== 'dark') t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', t);
+  /* Tell Safari the right bar color before first paint */
+  var c = t === 'dark' ? '#0b1a20' : '#f0f5f0';
+  document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) { m.setAttribute('content', c); });
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+  /* ===== 1. TOKENS ===== */
+  :root {
+    --mb-green:#99C961; --mb-coral:#fc826d; --mb-teal:#3c5c68; --mb-pinkberry:#d70158;
+    --mb-yellow:#ffde5c; --mb-amber:#fbaf41; --mb-sage:#9bc4bc; --mb-charcoal:#4d4d4d; --mb-orange:#f46e3b;
+
+    --ink:rgba(28,48,58,0.95); --ink-soft:rgba(50,80,92,0.62); --ink-faint:rgba(60,92,104,0.42); --hairline:rgba(60,92,104,0.14);
+
+    --ease-spring:cubic-bezier(0.34,1.56,0.64,1); --ease-out:cubic-bezier(0.22,1,0.36,1); --ease-liquid:cubic-bezier(0.16,1.1,0.3,1);
+
+    --mx:50%; --my:30%;
+    --glass-tint:rgba(255,255,255,0.10);
+    --glass-blur:blur(7px) saturate(230%) brightness(1.1) contrast(1.06);
+    --glass-blur-lg:blur(34px) saturate(200%) brightness(1.1) contrast(1.03);
+    --glass-blur-hover:blur(9px) saturate(240%) brightness(1.2) contrast(1.08);
+    --surface:transparent;
+    --label:rgba(35,60,72,0.82);
+    --label-shadow:0 1px 3px rgba(255,255,255,0.7);
+    --header-glass:linear-gradient(180deg,rgba(255,255,255,0.55),rgba(255,255,255,0.22));
+    --dock-glass:linear-gradient(180deg,rgba(255,255,255,0.58),rgba(255,255,255,0.30));
+    --card-glass:linear-gradient(168deg,rgba(255,255,255,0.5) 0%,rgba(255,255,255,0.14) 40%,rgba(255,255,255,0.06) 70%,rgba(255,255,255,0.2) 100%);
+    --hero-em:linear-gradient(120deg,#5a8a2a,#3c5c68);
+    --specular:0.85;
+    --tint-alpha:0.62; --tint-base:0.16;
+    --drop:rgba(40,70,84,0.12);
+    --lens-rim:conic-gradient(from 205deg,rgba(255,255,255,1) 0%,rgba(255,255,255,0.95) 10%,rgba(155,196,188,0.6) 20%,rgba(60,92,104,0.26) 32%,rgba(60,92,104,0.3) 46%,rgba(153,201,97,0.45) 58%,rgba(255,255,255,0.8) 68%,rgba(255,222,92,0.45) 78%,rgba(255,255,255,1) 88%,rgba(255,255,255,1) 100%);
+    --glass-edge:
+      inset 0 0 0 1px rgba(255,255,255,0.5),
+      inset 0 2px 1px -1px rgba(255,255,255,1),
+      inset 0 -2px 2px -1px rgba(255,255,255,0.75),
+      inset 3px 0 6px -3px rgba(255,255,255,0.8),
+      inset -3px 0 6px -3px rgba(255,255,255,0.8),
+      inset 0 -9px 14px -10px rgba(60,92,104,0.5),
+      inset 0 9px 14px -10px rgba(60,92,104,0.28);
+  }
+  html[data-theme="dark"] {
+    --ink:rgba(238,246,248,0.96); --ink-soft:rgba(210,228,232,0.70); --ink-faint:rgba(200,220,226,0.48); --hairline:rgba(255,255,255,0.14);
+    --glass-tint:rgba(255,255,255,0.05);
+    --glass-blur:blur(7px) saturate(160%) brightness(0.92) contrast(1.05);
+    --glass-blur-lg:blur(34px) saturate(150%) brightness(0.9) contrast(1.02);
+    --glass-blur-hover:blur(9px) saturate(175%) brightness(1.02) contrast(1.06);
+    --surface:rgba(9,20,25,0.55);
+    --label:rgba(225,238,242,0.88);
+    --label-shadow:0 1px 3px rgba(0,0,0,0.55);
+    --header-glass:linear-gradient(180deg,rgba(13,28,34,0.74),rgba(13,28,34,0.46));
+    --dock-glass:linear-gradient(180deg,rgba(20,40,48,0.66),rgba(10,22,27,0.80));
+    --card-glass:linear-gradient(170deg,rgba(255,255,255,0.10) 0%,rgba(255,255,255,0.03) 45%,rgba(255,255,255,0.06) 100%);
+    --hero-em:linear-gradient(120deg,#b9e08a,#9bc4bc);
+    --specular:0.32;
+    --tint-alpha:0.7; --tint-base:0.2;
+    --drop:rgba(0,0,0,0.38);
+    --lens-rim:conic-gradient(from 205deg,rgba(255,255,255,0.55) 0%,rgba(255,255,255,0.45) 10%,rgba(155,196,188,0.35) 20%,rgba(0,0,0,0.25) 32%,rgba(0,0,0,0.3) 46%,rgba(153,201,97,0.3) 58%,rgba(255,255,255,0.35) 68%,rgba(255,222,92,0.25) 78%,rgba(255,255,255,0.55) 88%,rgba(255,255,255,0.55) 100%);
+    --glass-edge:
+      inset 0 0 0 1px rgba(255,255,255,0.14),
+      inset 0 2px 1px -1px rgba(255,255,255,0.5),
+      inset 0 -2px 2px -1px rgba(255,255,255,0.16),
+      inset 3px 0 6px -3px rgba(255,255,255,0.2),
+      inset -3px 0 6px -3px rgba(255,255,255,0.2),
+      inset 0 -9px 14px -10px rgba(0,0,0,0.55),
+      inset 0 9px 14px -10px rgba(0,0,0,0.3);
+  }
+
+  /* ===== 2. BASE + LAYERS ===== */
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  html { background-color:#f0f5f0; color-scheme:light; -webkit-text-size-adjust:100%; }
+  html[data-theme="dark"] { background-color:#0b1a20; color-scheme:dark; }
+  body { background-color:#f0f5f0; }
+  html[data-theme="dark"] body { background-color:#0b1a20; }
+  body { font-family:'DM Sans',sans-serif; min-height:100vh; overflow-x:hidden; color:var(--ink); -webkit-font-smoothing:antialiased; }
+  ::selection { background:rgba(153,201,97,0.35); }
+  :focus-visible { outline:2px solid var(--mb-teal); outline-offset:3px; }
+
+  .bg-canvas { position:fixed; top:0; left:0; right:0; height:100vh; height:100lvh; z-index:-3;
+    background:linear-gradient(160deg,#f0f5f0 0%,#e8f2f4 35%,#f5f7ee 70%,#faf8f0 100%); }
+  html[data-theme="dark"] .bg-canvas { background:
+    radial-gradient(1200px 900px at 12% -10%,#17323c 0%,transparent 60%),
+    radial-gradient(1000px 800px at 92% 8%,#14282f 0%,transparent 62%),
+    linear-gradient(180deg,#0d1c22 0%,#0a1418 55%,#0b1a20 100%); }
+  .bg-grain { position:fixed; top:0; left:0; right:0; height:100vh; height:100lvh; z-index:-1; pointer-events:none; opacity:0.5;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.035'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  html[data-theme="dark"] .bg-grain { opacity:0.25; }
+
+  .orb { position:fixed; border-radius:50%; filter:blur(52px); z-index:-2; will-change:top,left; }
+  .orb1 { width:520px; height:520px; background:radial-gradient(circle,#99C961 0%,transparent 70%); opacity:0.8; animation:roam1 12s ease-in-out infinite; }
+  .orb2 { width:440px; height:440px; background:radial-gradient(circle,#3c5c68 0%,transparent 70%); opacity:0.6; animation:roam2 15s ease-in-out infinite; }
+  .orb3 { width:400px; height:400px; background:radial-gradient(circle,#fbaf41 0%,transparent 70%); opacity:0.55; animation:roam3 11s ease-in-out infinite; }
+  .orb4 { width:340px; height:340px; background:radial-gradient(circle,#fc826d 0%,transparent 70%); opacity:0.5; animation:roam4 13s ease-in-out infinite; }
+  .orb5 { width:300px; height:300px; background:radial-gradient(circle,#9bc4bc 0%,transparent 70%); opacity:0.45; animation:roam5 14s ease-in-out infinite; }
+  html[data-theme="dark"] .orb1 { opacity:0.30; } html[data-theme="dark"] .orb2 { opacity:0.45; }
+  html[data-theme="dark"] .orb3 { opacity:0.20; } html[data-theme="dark"] .orb4 { opacity:0.18; } html[data-theme="dark"] .orb5 { opacity:0.22; }
+  @keyframes roam1 { 0%,100%{top:-10vh;left:-8vw} 25%{top:20vh;left:55vw} 50%{top:60vh;left:15vw} 75%{top:30vh;left:75vw} }
+  @keyframes roam2 { 0%,100%{top:10vh;left:70vw} 25%{top:55vh;left:30vw} 50%{top:5vh;left:10vw} 75%{top:70vh;left:65vw} }
+  @keyframes roam3 { 0%,100%{top:65vh;left:5vw} 25%{top:10vh;left:40vw} 50%{top:50vh;left:70vw} 75%{top:80vh;left:25vw} }
+  @keyframes roam4 { 0%,100%{top:75vh;left:60vw} 25%{top:20vh;left:80vw} 50%{top:45vh;left:20vw} 75%{top:10vh;left:50vw} }
+  @keyframes roam5 { 0%,100%{top:40vh;left:40vw} 25%{top:70vh;left:10vw} 50%{top:15vh;left:65vw} 75%{top:55vh;left:50vw} }
+
+  @keyframes riseIn { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+  .rise { opacity:0; animation:riseIn 0.7s var(--ease-out) forwards; }
+  .d1{animation-delay:.05s} .d2{animation-delay:.14s} .d3{animation-delay:.23s} .d4{animation-delay:.32s} .d5{animation-delay:.41s} .d6{animation-delay:.5s} .d7{animation-delay:.59s}
+
+  /* Shared lens rim */
+  .glass::after, .app-icon::after, #dock::after {
+    content:''; position:absolute; inset:0; border-radius:inherit; padding:1.4px; background:var(--lens-rim);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor; mask-composite:exclude; opacity:0.8; pointer-events:none; z-index:4;
+  }
+
+  /* ===== 3. HEADER + THEME SWITCH ===== */
+  .site-header { position:sticky; top:0; z-index:300; isolation:isolate; padding-top:env(safe-area-inset-top,0px); }
+  .site-header::before { content:''; position:absolute; inset:0; z-index:-1; background:var(--header-glass);
+    backdrop-filter:blur(28px) saturate(210%) brightness(1.12); -webkit-backdrop-filter:blur(28px) saturate(210%) brightness(1.12);
+    box-shadow:inset 0 1px 1px rgba(255,255,255,0.95),inset 0 -1px 2px rgba(255,255,255,0.4),0 6px 24px rgba(40,70,84,0.07); opacity:var(--hp,0); }
+  html[data-theme="dark"] .site-header::before { box-shadow:inset 0 1px 1px rgba(255,255,255,0.12),inset 0 -1px 2px rgba(0,0,0,0.3),0 6px 24px rgba(0,0,0,0.35); }
+  .header-inner { max-width:860px; margin:0 auto; padding:0 1.25rem; display:flex; align-items:center; gap:12px; height:58px; }
+  .header-logo { font-size:1.4rem; animation:logoBreath 5s ease-in-out infinite; }
+  @keyframes logoBreath { 0%,100%{filter:drop-shadow(0 0 6px rgba(153,201,97,.45))} 50%{filter:drop-shadow(0 0 14px rgba(153,201,97,.85))} }
+  .header-name { font-family:'Playfair Display',serif; font-size:17px; font-weight:600; line-height:1.15; }
+  .header-sub { font-size:9px; font-weight:600; color:var(--ink-faint); text-transform:uppercase; letter-spacing:0.22em; margin-top:1px; }
+  .rainbow-bar { height:3px; opacity:calc(0.25 + var(--hp,0) * 0.75);
+    background:linear-gradient(90deg,#99C961,#ffde5c,#fbaf41,#fc826d,#f46e3b,#3c5c68,#99C961,#ffde5c,#fbaf41,#fc826d,#f46e3b,#3c5c68,#99C961);
+    background-size:200% 100%; animation:rainbowFlow 4s linear infinite; }
+  @keyframes rainbowFlow { to{background-position:200% 0} }
+
+  .theme-switch { margin-left:auto; display:flex; align-items:center; min-height:44px; border:none; background:none; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .theme-track { position:relative; isolation:isolate; width:64px; height:32px; border-radius:999px; display:flex; align-items:center; justify-content:space-between; padding:0 9px; color:var(--ink-faint);
+    background:linear-gradient(170deg,rgba(255,255,255,0.45),rgba(255,255,255,0.10)),var(--glass-tint);
+    backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); box-shadow:var(--glass-edge),0 4px 12px rgba(40,70,84,0.10); transition:transform .16s var(--ease-out); }
+  .theme-track svg { width:14px; height:14px; position:relative; z-index:1; transition:color .3s ease; }
+  .theme-knob { position:absolute; top:3px; left:3px; width:26px; height:26px; border-radius:999px; z-index:0;
+    background:linear-gradient(170deg,rgba(255,255,255,0.95),rgba(255,255,255,0.55)),rgba(255,222,92,0.35);
+    box-shadow:inset 0 1.5px 1px rgba(255,255,255,1),inset 0 -2px 3px rgba(251,175,65,0.25),0 3px 8px rgba(40,70,84,0.22);
+    transition:left .5s var(--ease-liquid),width .25s var(--ease-liquid),background .4s ease; }
+  .theme-switch:active .theme-knob { width:32px; }
+  .theme-switch:active .theme-track { transform:scale(0.95); }
+  .theme-switch:focus-visible { outline:none; }
+  .theme-switch:focus-visible .theme-track { outline:2px solid var(--mb-teal); outline-offset:3px; }
+  .theme-track .i-sun { color:#c9851c; }
+  html[data-theme="dark"] .theme-track .i-sun { color:var(--ink-faint); }
+  html[data-theme="dark"] .theme-track .i-moon { color:#dbe8ff; }
+  html[data-theme="dark"] .theme-knob { left:35px; background:linear-gradient(170deg,rgba(255,255,255,0.28),rgba(255,255,255,0.06)),rgba(60,92,104,0.85);
+    box-shadow:inset 0 1.5px 1px rgba(255,255,255,0.35),0 3px 10px rgba(0,0,0,0.45); }
+  html[data-theme="dark"] .theme-switch:active .theme-knob { left:29px; }
+
+
+  /* ===== HUB PILL: the way home, top left of every app ===== */
+  .hub-back { display:flex; align-items:center; min-height:44px; flex-shrink:0; text-decoration:none; -webkit-tap-highlight-color:transparent; }
+  .hub-pill { position:relative; isolation:isolate; display:flex; align-items:center; gap:3px; height:32px; padding:0 13px 0 8px; border-radius:999px;
+    font-size:12.5px; font-weight:700; letter-spacing:.01em; color:var(--ink);
+    background:linear-gradient(170deg,rgba(255,255,255,0.45),rgba(255,255,255,0.10)),var(--glass-tint);
+    backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
+    box-shadow:var(--glass-edge),0 4px 12px rgba(40,70,84,0.10);
+    transition:transform .42s var(--ease-liquid); }
+  .hub-pill svg { width:16px; height:16px; color:var(--mb-green); transition:transform .42s var(--ease-liquid); }
+  html[data-theme="dark"] .hub-pill { background:rgba(255,255,255,0.08); }
+  html[data-theme="dark"] .hub-pill svg { color:#b9e08a; }
+  .hub-back:hover .hub-pill svg { transform:translateX(-3px); }
+  .hub-back:active .hub-pill { transform:scale(.92); transition-duration:.16s; }
+  .hub-back:focus-visible { outline:none; }
+  .hub-back:focus-visible .hub-pill { outline:2px solid var(--mb-teal); outline-offset:3px; }
+
+  /* ===== 4. PAGE + HERO ===== */
+  .page-wrap { max-width:860px; margin:0 auto; padding:1.25rem 1.25rem calc(120px + env(safe-area-inset-bottom,0px)); }
+  .hero { text-align:center; padding:2rem 1rem 1.2rem; }
+  .hero-headline { font-family:'Playfair Display',serif; font-size:clamp(28px,5.2vw,44px); font-weight:600; line-height:1.12; letter-spacing:-0.01em; margin-bottom:.55rem;
+    text-shadow:0 2px 24px rgba(255,255,255,0.5); transform-origin:50% 0;
+    transform:translateY(calc(var(--hp,0) * -18px)) scale(calc(1 - var(--hp,0) * 0.14)); opacity:calc(1 - var(--hp,0) * 1.15); }
+  html[data-theme="dark"] .hero-headline { text-shadow:0 2px 20px rgba(0,0,0,0.4); }
+  .hero-headline em { font-style:italic; font-weight:500; background:var(--hero-em); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+  .hero-sub { font-size:13px; font-weight:500; color:var(--ink-soft); letter-spacing:.03em; max-width:480px; margin:0 auto; line-height:1.55;
+    opacity:calc(1 - var(--hp,0) * 1.6); transform:translateY(calc(var(--hp,0) * -22px)); }
+
+  /* Pages mode: only the active page shows */
+  .page-wrap .page { display:none; }
+  .page-wrap .page.active { display:block; }
+  .page-wrap.no-pages .page { display:block; }
+
+  /* ===== 5. COMPONENTS ===== */
+  .section-label { display:flex; align-items:center; gap:10px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.22em; color:var(--ink-faint);
+    margin:2.1rem 0 1.2rem; scroll-margin-top:calc(76px + env(safe-area-inset-top,0px)); }
+  .section-label::before { content:''; width:6px; height:6px; border-radius:50%; flex-shrink:0; background:var(--dot,var(--mb-green)); box-shadow:0 0 8px var(--dot,var(--mb-green)); }
+  .section-label::after { content:''; flex:1; height:1px; background:linear-gradient(90deg,var(--hairline),transparent); }
+  .dot-green{--dot:#99C961} .dot-yellow{--dot:#ffde5c} .dot-sage{--dot:#9bc4bc} .dot-pinkberry{--dot:#d70158} .dot-teal{--dot:#3c5c68} .dot-amber{--dot:#fbaf41} .dot-coral{--dot:#fc826d}
+
+  .glass { position:relative; isolation:isolate; border-radius:22px; padding:1.4rem 1.5rem; margin-bottom:1.1rem;
+    background:var(--card-glass),var(--surface);
+    backdrop-filter:var(--glass-blur-lg); -webkit-backdrop-filter:var(--glass-blur-lg);
+    box-shadow:var(--glass-edge),0 20px 44px var(--drop),0 4px 14px rgba(40,70,84,0.07); }
+  .glass::after { opacity:.55; padding:1.3px; }
+  .eyebrow { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.16em; color:var(--mb-teal); margin-bottom:.35rem; }
+  html[data-theme="dark"] .eyebrow { color:var(--mb-sage); }
+  .card-title { font-family:'Playfair Display',serif; font-size:18px; font-weight:600; margin-bottom:.5rem; }
+  .card-body { font-size:13.5px; line-height:1.65; color:var(--ink-soft); }
+  .card-body p + p { margin-top:.7rem; }
+  .card-body strong { color:var(--ink); font-weight:600; }
+
+  .app-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:1.6rem .75rem; }
+  .app-item { display:flex; flex-direction:column; align-items:center; gap:10px; text-decoration:none; color:inherit; -webkit-tap-highlight-color:transparent; }
+  .app-icon { --tint:153,201,97; width:86px; height:86px; border-radius:22px; position:relative; isolation:isolate; display:flex; align-items:center; justify-content:center; font-size:35px;
+    background:
+      linear-gradient(168deg,rgba(255,255,255,0.46) 0%,rgba(255,255,255,0.10) 34%,rgba(255,255,255,0) 56%,rgba(255,255,255,0.16) 100%),
+      radial-gradient(130% 80% at 50% 108%,rgba(var(--tint),var(--tint-alpha)) 0%,rgba(var(--tint),0) 78%),
+      linear-gradient(rgba(var(--tint),var(--tint-base)),rgba(var(--tint),var(--tint-base))),
+      var(--surface);
+    backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
+    box-shadow:var(--glass-edge),0 12px 30px rgba(var(--tint),0.26),0 3px 9px rgba(40,70,84,0.08);
+    transition:transform .42s var(--ease-liquid),border-radius .42s var(--ease-liquid),box-shadow .42s ease; }
+  html[data-theme="dark"] .app-icon { box-shadow:var(--glass-edge),0 12px 30px rgba(0,0,0,0.38),0 0 22px rgba(var(--tint),0.16); }
+  .app-icon::before { content:''; position:absolute; inset:0; border-radius:inherit; z-index:2; pointer-events:none; opacity:0; transition:opacity .3s ease;
+    background:radial-gradient(120px 90px at var(--mx) var(--my),rgba(255,255,255,var(--specular)) 0%,rgba(255,255,255,0.28) 24%,rgba(255,255,255,0) 62%); }
+  .app-icon span { position:relative; z-index:3; filter:drop-shadow(0 3px 7px rgba(40,70,84,0.28)); transition:transform .28s var(--ease-spring); }
+  .app-icon::after { opacity:.95; padding:1.6px; }
+  .app-item:hover .app-icon { transform:scale(1.1) translateY(-6px); border-radius:26px; backdrop-filter:var(--glass-blur-hover); -webkit-backdrop-filter:var(--glass-blur-hover);
+    box-shadow:inset 0 2px 2px rgba(255,255,255,1),inset 0 -3px 6px rgba(255,255,255,0.5),inset 0 -18px 30px rgba(var(--tint),0.18),0 26px 52px rgba(var(--tint),0.34),0 6px 16px rgba(40,70,84,0.1); }
+  html[data-theme="dark"] .app-item:hover .app-icon { box-shadow:var(--glass-edge),inset 0 -18px 30px rgba(var(--tint),0.22),0 26px 52px rgba(0,0,0,0.45),0 0 28px rgba(var(--tint),0.35); }
+  .app-item:hover .app-icon::before { opacity:1; }
+  .app-item:hover .app-icon span { transform:scale(1.07) translateY(-1px); }
+  .app-item:active .app-icon { transform:scale(0.9) translateY(1px); border-radius:34px; transition:transform .16s var(--ease-out),border-radius .16s var(--ease-out); }
+  .app-item:focus-visible { outline:none; }
+  .app-item:focus-visible .app-icon { outline:2px solid var(--mb-teal); outline-offset:3px; }
+  .app-label { font-size:11.5px; font-weight:600; color:var(--label); text-align:center; line-height:1.32; max-width:92px; text-shadow:var(--label-shadow); }
+  .tint-green .app-icon{--tint:153,201,97} .tint-yellow .app-icon{--tint:255,222,92} .tint-sage .app-icon{--tint:155,196,188}
+  .tint-pinkberry .app-icon{--tint:215,1,88;--tint-alpha:.42;--tint-base:.10} .tint-teal .app-icon{--tint:60,92,104} .tint-coral .app-icon{--tint:252,130,109} .tint-amber .app-icon{--tint:251,175,65}
+  html[data-theme="dark"] .tint-pinkberry .app-icon{--tint-alpha:.6;--tint-base:.16}
+  html[data-theme="dark"] .tint-teal .app-icon{--tint:110,165,182}
+
+  .btn-row { display:flex; gap:.7rem; flex-wrap:wrap; margin-top:1rem; }
+  .btn { position:relative; isolation:isolate; min-height:44px; padding:11px 20px; border-radius:999px; border:none; cursor:pointer; font:inherit; font-size:12.5px; font-weight:700; color:var(--ink);
+    background:linear-gradient(168deg,rgba(255,255,255,0.5),rgba(255,255,255,0.12) 60%,rgba(255,255,255,0.18)),var(--glass-tint);
+    backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); box-shadow:var(--glass-edge),0 10px 24px var(--drop);
+    transition:transform .3s var(--ease-liquid); text-decoration:none; display:inline-flex; align-items:center; }
+  html[data-theme="dark"] .btn:not(.primary) { background:rgba(255,255,255,0.08); }
+  .btn:hover { transform:translateY(-2px); } .btn:active { transform:scale(.95); }
+  .btn.primary { background:linear-gradient(160deg,rgba(153,201,97,.92),rgba(90,138,42,.9)); color:#fff; }
+
+  .callout { border-radius:16px; padding:1rem 1.15rem; margin-bottom:1.1rem; background:rgba(153,201,97,.12); border:1px solid rgba(153,201,97,.32); }
+  .callout b { display:block; font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:#5a8a2a; margin-bottom:4px; }
+  html[data-theme="dark"] .callout b { color:#b9e08a; }
+  .callout p { font-size:12.5px; line-height:1.55; color:var(--ink-soft); }
+
+  .footer { text-align:center; padding:2rem 0 0; font-size:10.5px; color:var(--ink-faint); }
+
+  /* ===== 6. THE DOCK ===== */
+  #dock { position:fixed; left:50%; bottom:calc(12px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%); z-index:400;
+    display:flex; align-items:center; gap:2px; padding:5px; border-radius:999px; isolation:isolate;
+    background:var(--dock-glass); backdrop-filter:blur(20px) saturate(210%) brightness(1.08); -webkit-backdrop-filter:blur(20px) saturate(210%) brightness(1.08);
+    box-shadow:var(--glass-edge),0 18px 44px rgba(40,70,84,0.22),0 4px 12px rgba(40,70,84,0.10); transition:padding .5s var(--ease-liquid); }
+  html[data-theme="dark"] #dock { box-shadow:var(--glass-edge),0 18px 44px rgba(0,0,0,0.5); }
+  #dock::after { opacity:.85; }
+  .dock-pill { position:absolute; top:5px; bottom:5px; left:5px; width:0; border-radius:999px; z-index:0;
+    background:linear-gradient(170deg,rgba(255,255,255,0.75),rgba(255,255,255,0.25)),rgba(var(--pill,153,201,97),0.22);
+    box-shadow:inset 0 1.5px 1px rgba(255,255,255,1),inset 0 -2px 4px rgba(var(--pill,153,201,97),0.25),0 4px 12px rgba(var(--pill,153,201,97),0.28);
+    transition:left .5s var(--ease-liquid),width .5s var(--ease-liquid),background .3s ease; }
+  html[data-theme="dark"] .dock-pill { background:linear-gradient(170deg,rgba(255,255,255,0.16),rgba(255,255,255,0.04)),rgba(var(--pill,153,201,97),0.28);
+    box-shadow:inset 0 1.5px 1px rgba(255,255,255,0.3),0 4px 14px rgba(var(--pill,153,201,97),0.3); }
+  #dock a { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; min-width:60px; max-width:90px; min-height:50px; padding:0 6px;
+    border-radius:999px; color:var(--ink-soft); text-decoration:none; font-size:10px; font-weight:600; letter-spacing:.01em; overflow:hidden; -webkit-tap-highlight-color:transparent;
+    transition:color .25s ease,max-width .5s var(--ease-liquid),min-width .5s var(--ease-liquid),min-height .5s var(--ease-liquid),padding .5s var(--ease-liquid),opacity .3s ease,transform .16s var(--ease-out); }
+  #dock a svg { width:21px; height:21px; flex-shrink:0; }
+  #dock a .dl { white-space:nowrap; max-height:14px; transition:max-height .4s var(--ease-liquid),opacity .25s ease; }
+  #dock a:hover { color:var(--ink); } #dock a:active { transform:scale(.9); }
+  #dock a:focus-visible { outline:2px solid var(--mb-teal); outline-offset:-2px; }
+  #dock a.on { color:var(--on,var(--ink)); }
+  #dock.compact { padding:4px; }
+  #dock.compact a { min-height:44px; min-width:44px; }
+  #dock.compact a:not(.on) { max-width:0; min-width:0; padding:0; opacity:0; pointer-events:none; }
+  #dock.compact a .dl { max-height:0; opacity:0; }
+  #dock.compact .dock-pill { top:4px; bottom:4px; }
+
+  /* ===== 7. LENS REFRACTION (Chromium only, gated by script) ===== */
+  .lens-defs { position:absolute; width:0; height:0; overflow:hidden; pointer-events:none; }
+  .refract .app-icon { backdrop-filter:url(#lens-86) var(--glass-blur); }
+  .refract .app-item:hover .app-icon { backdrop-filter:url(#lens-86) var(--glass-blur-hover); }
+
+  /* ===== REWARDS TRAINING ===== */
+  [hidden] { display:none !important; }
+  span.eyebrow { display:block; }
+  .hint { font-size:12px; color:var(--ink-faint); margin:-.5rem 0 1rem; }
+
+  .calc .card-title { margin-bottom:.9rem; }
+  .calc-split { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:14px; align-items:center; }
+  @media (max-width:340px) { .calc-split { grid-template-columns:1fr; } }
+  @media (min-width:620px) { .calc-split { grid-template-columns:minmax(0,1fr) 260px; gap:24px; } }
+  .calc-ctl { display:flex; flex-direction:column; justify-content:center; gap:10px; min-width:0; }
+  .calc-btns { display:flex; justify-content:center; gap:14px; }
+  .ready { width:100%; height:auto; aspect-ratio:1/1; align-self:start; min-width:0; box-sizing:border-box; display:flex; flex-direction:column; padding:12px 10px 10px; border-radius:18px;
+    background:rgba(255,255,255,.42); box-shadow:inset 0 0 0 1px rgba(255,255,255,.75),inset 0 2px 6px rgba(60,92,104,.08); }
+  html[data-theme="dark"] .ready { background:rgba(255,255,255,.05); box-shadow:inset 0 0 0 1px rgba(255,255,255,.1),inset 0 2px 6px rgba(0,0,0,.25); }
+  .ready-h { display:flex; justify-content:space-between; align-items:center; padding:0 4px 6px; font-size:9.5px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-faint); }
+  .ready-ct { min-width:22px; height:22px; padding:0 6px; border-radius:999px; display:grid; place-items:center; font-size:11px; letter-spacing:0; color:#5a8a2a; background:rgba(153,201,97,.24); }
+  html[data-theme="dark"] .ready-ct { color:#b9e08a; background:rgba(153,201,97,.18); }
+  .ready-list { list-style:none; margin:0; padding:0; flex:1; }
+  .ready-list li { display:flex; align-items:center; gap:8px; max-height:0; opacity:0; transform:translateX(12px); overflow:hidden; padding:0 6px; border-radius:10px;
+    transition:max-height .45s var(--ease-liquid),opacity .3s ease,transform .45s var(--ease-liquid),padding .45s var(--ease-liquid),background .25s ease,box-shadow .25s ease; }
+  .ready-list li.on { max-height:48px; opacity:1; transform:none; padding:4px 6px; }
+  .ready-list li i { flex:0 0 9px; width:9px; height:9px; border-radius:50%; background:rgb(var(--tint)); box-shadow:0 0 8px rgba(var(--tint),.8); }
+  .ready-list li span { min-width:0; }
+  .ready-list li b { display:block; font-size:11.5px; font-weight:700; line-height:1.25; }
+  .ready-list li small { display:block; font-size:9.5px; color:var(--ink-faint); margin-top:1px; }
+  .ready-list li.picked { background:rgba(var(--tint),.22); box-shadow:inset 0 0 0 1.5px rgba(var(--tint),.9); }
+  .ready-empty { padding:4px 6px; font-size:12px; font-weight:600; color:var(--ink-soft); }
+  .ready-next { padding:6px 6px 0; margin-top:auto; font-size:10px; font-weight:700; line-height:1.4; color:var(--ink-soft); box-shadow:inset 0 1px 0 var(--hairline); }
+  .step-btn { width:48px; height:48px; flex:0 0 48px; border-radius:999px; border:none; cursor:pointer; color:var(--ink); display:grid; place-items:center;
+    background:linear-gradient(168deg,rgba(255,255,255,0.5),rgba(255,255,255,0.12) 60%,rgba(255,255,255,0.18)),var(--glass-tint);
+    box-shadow:var(--glass-edge),0 8px 18px var(--drop); transition:transform .3s var(--ease-liquid); -webkit-tap-highlight-color:transparent; }
+  html[data-theme="dark"] .step-btn { background:rgba(255,255,255,0.08); }
+  .step-btn svg { width:18px; height:18px; }
+  .step-btn:hover { transform:translateY(-2px); } .step-btn:active { transform:scale(.9); }
+  .calc-num { text-align:center; }
+  .calc-num output { display:block; font-family:'Playfair Display',serif; font-size:46px; font-weight:600; line-height:1; }
+  .calc-num span { font-size:9.5px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-faint); }
+  .calc-range { width:100%; height:44px; margin:0; accent-color:#7fb24a; cursor:pointer; }
+  .calc-msg { font-size:13px; line-height:1.55; color:var(--ink-soft); min-height:2.6em; }
+  .calc-msg b { color:var(--ink); }
+
+  .rw-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:.7rem; margin-bottom:1.1rem; }
+  .rw { --tint:153,201,97; position:relative; isolation:isolate; display:flex; flex-direction:column; align-items:flex-start; text-align:left;
+    border:none; font:inherit; color:var(--ink); cursor:pointer; border-radius:22px; padding:1rem 1rem 1.05rem; min-height:44px;
+    --rw-wash:.5; --rw-glow:.85;
+    background:var(--card-glass),radial-gradient(130% 80% at 50% 112%,rgba(var(--tint),var(--rw-glow)) 0%,rgba(var(--tint),0) 80%),linear-gradient(rgba(var(--tint),var(--rw-wash)),rgba(var(--tint),var(--rw-wash))),var(--surface);
+    backdrop-filter:var(--glass-blur-lg); -webkit-backdrop-filter:var(--glass-blur-lg);
+    box-shadow:var(--glass-edge),0 14px 30px rgba(var(--tint),.3),0 4px 12px var(--drop);
+    transition:transform .42s var(--ease-liquid),opacity .3s ease,filter .3s ease,box-shadow .3s ease; -webkit-tap-highlight-color:transparent; }
+  .rw::after { content:''; position:absolute; inset:0; border-radius:inherit; padding:1.4px; background:var(--lens-rim);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor; mask-composite:exclude; opacity:.7; pointer-events:none; }
+  .rw:hover { transform:translateY(-4px); } .rw:active { transform:scale(.96); }
+  .rw .pts { font-family:'Playfair Display',serif; font-size:34px; font-weight:600; line-height:1; }
+  .rw .pl { font-size:9px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-faint); margin-top:4px; }
+  .rw .rt { font-size:14px; font-weight:700; margin-top:.75rem; }
+  .rw .rd { font-size:11.5px; line-height:1.5; color:var(--ink-soft); margin-top:3px; }
+  .rw.locked { opacity:.42; filter:saturate(.3); cursor:default; }
+  .rw.locked:hover { transform:none; }
+  .rw.picked { box-shadow:var(--glass-edge),0 0 0 2.5px rgba(var(--tint),1),0 16px 34px rgba(var(--tint),.45); }
+  html[data-theme="dark"] .rw { --rw-wash:.2; --rw-glow:.55; box-shadow:var(--glass-edge),0 14px 30px rgba(0,0,0,.35),0 0 22px rgba(var(--tint),.18); }
+  html[data-theme="dark"] .rw.picked { box-shadow:var(--glass-edge),0 0 0 2.5px rgba(var(--tint),.95),0 0 26px rgba(var(--tint),.4); }
+  .rw .pl, .rw .rd { color:var(--ink-soft); }
+  @media (max-width:520px) {
+    .rw-grid { gap:.45rem; }
+    .rw { padding:.8rem .6rem .85rem; border-radius:18px; }
+    .rw .pts { font-size:25px; }
+    .rw .pl { font-size:7.5px; letter-spacing:.14em; }
+    .rw .rt { font-size:11.5px; line-height:1.25; margin-top:.55rem; }
+    .rw .rd { font-size:10px; line-height:1.4; }
+  }
+  .why-card .rule-ic svg { width:14px; height:14px; }
+
+  .rules { padding:.6rem 1.2rem; }
+  .rule { display:flex; align-items:flex-start; gap:12px; padding:.8rem 0; }
+  .rule + .rule { box-shadow:inset 0 1px 0 var(--hairline); }
+  .rule-ic { flex:0 0 26px; width:26px; height:26px; border-radius:999px; display:grid; place-items:center; font-size:12px; font-weight:700; color:#5a8a2a;
+    background:rgba(153,201,97,.22); box-shadow:inset 0 0 0 1px rgba(255,255,255,.7); }
+  html[data-theme="dark"] .rule-ic { color:#b9e08a; background:rgba(153,201,97,.18); box-shadow:inset 0 0 0 1px rgba(255,255,255,.12); }
+  .rule b { display:block; font-size:13.5px; font-weight:700; }
+  .rule div span { display:block; font-size:12px; color:var(--ink-soft); margin-top:2px; line-height:1.5; }
+
+  .say-grid { display:grid; grid-template-columns:1fr; gap:.75rem; }
+  @media (min-width:620px) { .say-grid { grid-template-columns:1fr 1fr; } }
+  .say { display:grid; width:100%; margin-bottom:0; border:none; font:inherit; color:var(--ink); text-align:left; cursor:pointer; min-height:124px; align-items:center;
+    transition:transform .42s var(--ease-liquid); -webkit-tap-highlight-color:transparent; }
+  .say:hover { transform:translateY(-3px); } .say:active { transform:scale(.97); }
+  .face { grid-area:1/1; display:flex; flex-direction:column; gap:6px; transition:opacity .35s var(--ease-out),transform .45s var(--ease-liquid); }
+  .face .lab { font-size:9.5px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; }
+  .face .q { font-size:15.5px; font-weight:600; line-height:1.4; }
+  .face .tap { font-size:11px; color:var(--ink-faint); }
+  .never .lab { color:#d70158; } html[data-theme="dark"] .never .lab { color:#ff6fa6; }
+  .right .lab { color:#5a8a2a; } html[data-theme="dark"] .right .lab { color:#b9e08a; }
+  .never .q { color:var(--ink-soft); text-decoration:line-through; text-decoration-color:rgba(215,1,88,.55); text-decoration-thickness:1.5px; }
+  .say .right { opacity:0; transform:translateY(10px); }
+  .say[aria-pressed="true"] .never { opacity:0; transform:translateY(-10px); }
+  .say[aria-pressed="true"] .right { opacity:1; transform:none; }
+
+  .seg { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:1.1rem; }
+  .seg-b { min-height:44px; padding:0 16px; border-radius:999px; border:none; cursor:pointer; font:inherit; font-size:12px; font-weight:700; color:var(--ink-soft);
+    background:rgba(255,255,255,.42); box-shadow:inset 0 0 0 1px rgba(255,255,255,.8),0 4px 10px rgba(40,70,84,.06);
+    transition:transform .3s var(--ease-liquid),background .3s ease,color .3s ease; -webkit-tap-highlight-color:transparent; }
+  .seg-b:active { transform:scale(.94); }
+  .seg-b[aria-selected="true"] { color:#fff; background:linear-gradient(160deg,rgba(60,92,104,.95),rgba(40,70,84,.95)); box-shadow:inset 0 1px 1px rgba(255,255,255,.35),0 6px 14px rgba(60,92,104,.3); }
+  html[data-theme="dark"] .seg-b { background:rgba(255,255,255,.07); box-shadow:inset 0 0 0 1px rgba(255,255,255,.12); }
+  html[data-theme="dark"] .seg-b[aria-selected="true"] { color:#fff; background:rgba(110,165,182,.38); box-shadow:inset 0 1px 1px rgba(255,255,255,.25); }
+  .seg.small .seg-b { min-height:44px; font-size:11.5px; }
+  .roles-seg { display:grid; grid-template-columns:repeat(6,1fr); }
+  .roles-seg .seg-b { grid-column:span 2; padding:0 8px; }
+  .roles-seg .seg-b:nth-child(n+4) { grid-column:span 3; }
+  .seg.small { display:grid; grid-template-columns:1fr 1fr; max-width:340px; }
+  @media (min-width:620px) { .roles-seg { display:flex; } .roles-seg .seg-b { padding:0 16px; } }
+
+  .own-t { font-size:14px; font-weight:600; line-height:1.55; color:var(--ink); }
+  .steps { list-style:none; margin:0; padding:0; }
+  .stp { display:flex; gap:14px; align-items:flex-start; padding:1.1rem 1.2rem; }
+  .num { flex:0 0 30px; width:30px; height:30px; border-radius:999px; display:grid; place-items:center; font-size:13px; font-weight:700; color:#fff;
+    background:linear-gradient(160deg,rgba(60,92,104,.95),rgba(40,70,84,.95)); box-shadow:inset 0 1px 1px rgba(255,255,255,.35); }
+  html[data-theme="dark"] .num { background:rgba(110,165,182,.45); }
+  .stp-b { flex:1; min-width:0; }
+  .stp-t { font-family:'Playfair Display',serif; font-size:17px; font-weight:600; margin-bottom:.25rem; }
+  .stp-do { font-size:12.5px; line-height:1.55; color:var(--ink-soft); }
+  .line { margin-top:.7rem; padding:.75rem .9rem; border-radius:14px; background:rgba(255,255,255,.42); box-shadow:inset 0 0 0 1px rgba(255,255,255,.7); }
+  html[data-theme="dark"] .line { background:rgba(255,255,255,.06); box-shadow:inset 0 0 0 1px rgba(255,255,255,.1); }
+  .line .eyebrow { margin-bottom:3px; }
+  .line .q { font-size:13.5px; font-weight:600; line-height:1.5; color:var(--ink); }
+  .line.quiet .q { font-weight:500; color:var(--ink-soft); }
+  .lines .line:first-child { margin-top:0; }
+  .chk label { display:flex; align-items:center; gap:12px; min-height:44px; font-size:13.5px; font-weight:600; cursor:pointer; }
+  .chk input { width:20px; height:20px; accent-color:#7fb24a; flex:0 0 20px; }
+
+  .qa { padding:0; margin-bottom:.75rem; }
+  .qa-q { width:100%; display:flex; align-items:center; gap:12px; min-height:58px; padding:1rem 1.2rem; border:none; background:none; font:inherit; color:var(--ink); text-align:left; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .qa-q span { flex:1; font-family:'Playfair Display',serif; font-size:16px; font-weight:600; line-height:1.35; }
+  .qa-q svg { width:18px; height:18px; flex:0 0 18px; color:var(--ink-faint); transition:transform .42s var(--ease-liquid); }
+  .qa-q[aria-expanded="true"] svg { transform:rotate(180deg); color:var(--ink-soft); }
+  .qa-a { padding:0 1.2rem 1.1rem; }
+  .qa-a .line { margin-top:0; }
+  .qa-a.anim { animation:qaIn .4s var(--ease-out); }
+  @keyframes qaIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
+  .why { font-size:11.5px; line-height:1.5; color:var(--ink-faint); margin-top:.6rem; }
+  .why b { color:var(--ink-soft); }
+
+  .qz-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:.6rem; }
+  .qz-top .eyebrow { margin:0; }
+  .qz-score { font-size:11px; font-weight:700; color:var(--ink-soft); }
+  .qz-bar { height:4px; border-radius:999px; background:var(--hairline); overflow:hidden; margin-bottom:1.1rem; }
+  .qz-bar i { display:block; height:100%; width:0; border-radius:inherit; background:linear-gradient(90deg,#99C961,#ffde5c); transition:width .5s var(--ease-liquid); }
+  .qz-who { font-size:10px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:.35rem; }
+  .quiz .card-title { font-size:19px; line-height:1.35; }
+  .qz-opts { display:flex; flex-direction:column; gap:.6rem; margin-top:.9rem; }
+  .opt { position:relative; min-height:52px; padding:.85rem 1rem; border-radius:16px; border:none; font:inherit; font-size:13.5px; line-height:1.45; text-align:left; color:var(--ink); cursor:pointer;
+    background:linear-gradient(168deg,rgba(255,255,255,.55),rgba(255,255,255,.2)); box-shadow:var(--glass-edge),0 6px 16px var(--drop);
+    transition:transform .3s var(--ease-liquid),opacity .3s ease,box-shadow .3s ease; -webkit-tap-highlight-color:transparent; }
+  html[data-theme="dark"] .opt { background:rgba(255,255,255,.06); }
+  .opt:hover { transform:translateY(-2px); } .opt:active { transform:scale(.97); }
+  .opt[disabled] { cursor:default; } .opt[disabled]:hover { transform:none; }
+  .opt.right { box-shadow:var(--glass-edge),0 0 0 2px rgba(153,201,97,.95),0 10px 24px rgba(153,201,97,.35); }
+  .opt.wrong { box-shadow:var(--glass-edge),0 0 0 2px rgba(215,1,88,.7); }
+  .opt.dim { opacity:.42; }
+  .qz-fb { margin-top:1rem; border-radius:16px; padding:.9rem 1rem; font-size:12.5px; line-height:1.55; color:var(--ink-soft); }
+  .qz-fb.ok { background:rgba(153,201,97,.15); } .qz-fb.no { background:rgba(215,1,88,.08); }
+  .qz-fb b { display:block; font-size:10px; letter-spacing:.12em; text-transform:uppercase; margin-bottom:3px; }
+  .qz-fb.ok b { color:#5a8a2a; } .qz-fb.no b { color:#d70158; }
+  html[data-theme="dark"] .qz-fb.ok b { color:#b9e08a; } html[data-theme="dark"] .qz-fb.no b { color:#ff6fa6; }
+  .done-num { font-family:'Playfair Display',serif; font-size:56px; font-weight:600; line-height:1; margin:.3rem 0 .6rem; }
+  @media (prefers-reduced-motion:reduce) { .qa-a.anim { animation:none; } }
+
+  /* ===== 8. RESPONSIVE + REDUCED MOTION ===== */
+  @media (max-width:480px) {
+    .app-grid { grid-template-columns:repeat(3,1fr); gap:1.3rem .5rem; }
+    .app-icon { width:74px; height:74px; font-size:29px; border-radius:21px; }
+    .refract .app-icon { backdrop-filter:url(#lens-74) var(--glass-blur); }
+    .refract .app-item:hover .app-icon { backdrop-filter:url(#lens-74) var(--glass-blur-hover); }
+    .hero { padding:1.5rem .5rem 1rem; }
+  }
+  @media (prefers-reduced-motion:reduce) {
+    .orb, .rainbow-bar, .header-logo { animation:none !important; }
+    .rise { animation-duration:.01s; }
+    * { transition-duration:.01s !important; }
+  }
+</style>
+</head>
+<body>
+
+<svg class="lens-defs" aria-hidden="true" focusable="false">
+  <filter id="lens-86" x="0" y="0" width="86" height="86" filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+    <feImage href="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2286%22%20height%3D%2286%22%20viewBox%3D%220%200%2086%2086%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22r%22%20x1%3D%220%22%20x2%3D%221%22%20y1%3D%220%22%20y2%3D%220%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23000%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23f00%22/%3E%3C/linearGradient%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20x2%3D%220%22%20y1%3D%220%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23000%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%230f0%22/%3E%3C/linearGradient%3E%3Cfilter%20id%3D%22b%22%20x%3D%22-20%25%22%20y%3D%22-20%25%22%20width%3D%22140%25%22%20height%3D%22140%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%226.0%22/%3E%3C/filter%3E%3C/defs%3E%3Crect%20width%3D%2286%22%20height%3D%2286%22%20fill%3D%22%23000%22/%3E%3Crect%20width%3D%2286%22%20height%3D%2286%22%20rx%3D%2222%22%20fill%3D%22url%28%23r%29%22/%3E%3Crect%20width%3D%2286%22%20height%3D%2286%22%20rx%3D%2222%22%20fill%3D%22url%28%23g%29%22%20style%3D%22mix-blend-mode%3Ascreen%22/%3E%3Crect%20x%3D%2210.3%22%20y%3D%2210.3%22%20width%3D%2265.4%22%20height%3D%2265.4%22%20rx%3D%2215.4%22%20fill%3D%22rgb%28128%2C128%2C128%29%22%20filter%3D%22url%28%23b%29%22/%3E%3C/svg%3E" x="0" y="0" width="86" height="86" preserveAspectRatio="none" result="map"/>
+    <feDisplacementMap in="SourceGraphic" in2="map" scale="18" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <filter id="lens-74" x="0" y="0" width="74" height="74" filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+    <feImage href="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2274%22%20height%3D%2274%22%20viewBox%3D%220%200%2074%2074%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22r%22%20x1%3D%220%22%20x2%3D%221%22%20y1%3D%220%22%20y2%3D%220%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23000%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23f00%22/%3E%3C/linearGradient%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20x2%3D%220%22%20y1%3D%220%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23000%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%230f0%22/%3E%3C/linearGradient%3E%3Cfilter%20id%3D%22b%22%20x%3D%22-20%25%22%20y%3D%22-20%25%22%20width%3D%22140%25%22%20height%3D%22140%25%22%3E%3CfeGaussianBlur%20stdDeviation%3D%225.2%22/%3E%3C/filter%3E%3C/defs%3E%3Crect%20width%3D%2274%22%20height%3D%2274%22%20fill%3D%22%23000%22/%3E%3Crect%20width%3D%2274%22%20height%3D%2274%22%20rx%3D%2221%22%20fill%3D%22url%28%23r%29%22/%3E%3Crect%20width%3D%2274%22%20height%3D%2274%22%20rx%3D%2221%22%20fill%3D%22url%28%23g%29%22%20style%3D%22mix-blend-mode%3Ascreen%22/%3E%3Crect%20x%3D%228.9%22%20y%3D%228.9%22%20width%3D%2256.2%22%20height%3D%2256.2%22%20rx%3D%2214.7%22%20fill%3D%22rgb%28128%2C128%2C128%29%22%20filter%3D%22url%28%23b%29%22/%3E%3C/svg%3E" x="0" y="0" width="74" height="74" preserveAspectRatio="none" result="map"/>
+    <feDisplacementMap in="SourceGraphic" in2="map" scale="15" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+
+<div class="bg-canvas"></div>
+<div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div><div class="orb orb4"></div><div class="orb orb5"></div>
+<div class="bg-grain"></div>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="hub-back" id="hubBack" href="../greenhouse.html" aria-label="Back to The Greenhouse">
+      <span class="hub-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Greenhouse</span>
+    </a>
+    <div>
+      <div class="header-name">Rewards</div>
+      <div class="header-sub">Morning Belle</div>
+    </div>
+    <button class="theme-switch" id="themeSwitch" type="button" aria-label="Dark mode" aria-pressed="false">
+      <span class="theme-track">
+        <span class="theme-knob" aria-hidden="true"></span>
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>
+      </span>
+    </button>
+  </div>
+  <div class="rainbow-bar"></div>
+</header>
+
+<div class="page-wrap">
+
+  <div class="hero rise d1">
+    <h1 class="hero-headline">Rewards,<br><em>relaunched.</em></h1>
+    <p class="hero-sub">Lead with what guests gain and handle the change honestly.</p>
+  </div>
+
+  <!-- PAGE: REWARDS -->
+  <section class="page active" id="page-rewards">
+    <div class="callout rise d2">
+      <b>Launches Monday 10/19</b>
+      <p>Toast moved us to a new loyalty structure. Guests can no longer stack rewards.</p>
+    </div>
+
+    <div class="section-label dot-green rise d2">The Four Rewards</div>
+    <div class="rw-grid rise d3">
+      <button class="rw" type="button" style="--tint:153,201,97" data-cost="25" data-name="their drink"><span class="pts">25</span><span class="pl">Points</span><span class="rt">Your drink, earned</span><span class="rd">One non alcoholic beverage. Carafes excluded.</span></button>
+      <button class="rw" type="button" style="--tint:255,222,92" data-cost="50" data-name="a pastry"><span class="pts">50</span><span class="pl">Points</span><span class="rt">A pastry</span><span class="rd">Any one pastry.</span></button>
+      <button class="rw" type="button" style="--tint:252,130,109" data-cost="100" data-name="$10 off"><span class="pts">100</span><span class="pl">Points</span><span class="rt">$10 off</span><span class="rd">Every point worth $0.10.</span></button>
+      <button class="rw" type="button" style="--tint:251,175,65" data-cost="250" data-name="$25 off"><span class="pts">250</span><span class="pl">Points</span><span class="rt">$25 off</span><span class="rd">Every point worth $0.10. The biggest single redemption.</span></button>
+    </div>
+
+    <div class="section-label dot-green rise d4">The Why</div>
+    <div class="glass rules why-card rise d4">
+      <div class="rule"><span class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></span><div><b>Guest freedom and control.</b><span>They choose what to redeem, when, and where. Points never expire, so waiting never costs them.</span></div></div>
+      <div class="rule"><span class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 0 1 13.7-5.6L20 8.5"/><path d="M20 4v4.5h-4.5"/><path d="M20 12a8 8 0 0 1-13.7 5.6L4 15.5"/><path d="M4 20v-4.5h4.5"/></svg></span><div><b>More return visits.</b><span>Rewards start at 25 points and one is used per visit, so every visit sets up the next one.</span></div></div>
+    </div>
+
+    <div class="section-label dot-green rise d5">Points Check</div>
+    <div class="glass calc rise d5">
+      <div class="eyebrow">Try it</div>
+      <div class="card-title">How many points does the guest have?</div>
+      <div class="calc-split">
+        <div class="calc-ctl">
+          <div class="calc-num"><output id="ptsOut">400</output><span>points</span></div>
+          <div class="calc-btns">
+            <button class="step-btn" type="button" data-step="-25" aria-label="25 fewer points"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 12h12"/></svg></button>
+            <button class="step-btn" type="button" data-step="25" aria-label="25 more points"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 12h12M12 6v12"/></svg></button>
+          </div>
+          <input class="calc-range" type="range" id="pts" min="0" max="500" step="5" value="400" aria-label="Guest points">
+        </div>
+        <div class="ready" aria-live="polite">
+          <div class="ready-h"><span>Ready now</span><span class="ready-ct" id="readyCt">4</span></div>
+          <ul class="ready-list">
+            <li data-cost="25" style="--tint:153,201,97"><i></i><span><b>Your drink, earned</b><small></small></span></li>
+            <li data-cost="50" style="--tint:255,222,92"><i></i><span><b>A pastry</b><small></small></span></li>
+            <li data-cost="100" style="--tint:252,130,109"><i></i><span><b>$10 off</b><small></small></span></li>
+            <li data-cost="250" style="--tint:251,175,65"><i></i><span><b>$25 off</b><small></small></span></li>
+          </ul>
+          <p class="ready-empty" id="readyEmpty" hidden>Not enough yet.</p>
+          <p class="ready-next" id="readyNext"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label dot-green rise d6">The Rules</div>
+    <div class="glass rules rise d6">
+      <div class="rule"><span class="rule-ic">1</span><div><b>One reward per visit.</b><span>Whatever they do not use stays banked.</span></div></div>
+      <div class="rule"><span class="rule-ic">1</span><div><b>One guest redeems per check.</b><span>Friends who want to redeem get a split check.</span></div></div>
+      <div class="rule"><span class="rule-ic">✓</span><div><b>Points never expire.</b><span>Banking never costs the guest.</span></div></div>
+      <div class="rule"><span class="rule-ic">✓</span><div><b>Redeem anywhere.</b><span>In store, online ordering, mobile order &amp; pay.</span></div></div>
+    </div>
+  </section>
+
+  <!-- PAGE: WORDS -->
+  <section class="page" id="page-words">
+    <div class="callout rise d2">
+      <b>The rule</b>
+      <p>Lead with what guests gain. Handle the change honestly.</p>
+    </div>
+    <div class="section-label dot-pinkberry rise d2">How We Say It</div>
+    <p class="hint rise d3">Tap a card to swap the wrong words for the right ones.</p>
+    <div class="say-grid rise d3">
+      <button class="say glass" type="button" aria-pressed="false">
+        <span class="face never"><span class="lab">Never say</span><span class="q">“free drink” or “on us”</span><span class="tap">Tap for the right words</span></span>
+        <span class="face right"><span class="lab">Say</span><span class="q">“your drink, earned”</span><span class="tap">They earned it. Say it.</span></span>
+      </button>
+      <button class="say glass" type="button" aria-pressed="false">
+        <span class="face never"><span class="lab">Never say</span><span class="q">“we capped it” or “you lost points”</span><span class="tap">Tap for the right words</span></span>
+        <span class="face right"><span class="lab">Say</span><span class="q">“the biggest single redemption is $25”</span><span class="tap">Nothing was lost. The rest stays banked.</span></span>
+      </button>
+      <button class="say glass" type="button" aria-pressed="false">
+        <span class="face never"><span class="lab">Never say</span><span class="q">“use it or lose it”</span><span class="tap">Tap for the right words</span></span>
+        <span class="face right"><span class="lab">Say</span><span class="q">“bank as long as you like”</span><span class="tap">Points never expire.</span></span>
+      </button>
+      <button class="say glass" type="button" aria-pressed="false">
+        <span class="face never"><span class="lab">Never say</span><span class="q">“only one of you can use it”</span><span class="tap">Tap for the right words</span></span>
+        <span class="face right"><span class="lab">Say</span><span class="q">“one guest redeems per check”</span><span class="tap">Then offer to split it.</span></span>
+      </button>
+    </div>
+    <div class="btn-row rise d4"><button class="btn" id="sayAll" type="button">Show all</button></div>
+  </section>
+
+  <!-- PAGE: ROLES -->
+  <section class="page" id="page-roles">
+    <div class="section-label dot-teal rise d2">Your Role</div>
+    <div class="seg roles-seg rise d2" role="tablist" aria-label="Choose a role">
+      <button class="seg-b" type="button" role="tab" aria-selected="true" data-pick="servers">Servers</button>
+      <button class="seg-b" type="button" role="tab" aria-selected="false" data-pick="hosts">Hosts</button>
+      <button class="seg-b" type="button" role="tab" aria-selected="false" data-pick="supervisors">Supervisors</button>
+      <button class="seg-b" type="button" role="tab" aria-selected="false" data-pick="managers">Managers</button>
+      <button class="seg-b" type="button" role="tab" aria-selected="false" data-pick="gms">GMs</button>
+    </div>
+
+    <div class="role rise d3" data-role="servers">
+      <div class="glass own"><div class="eyebrow">You own</div><p class="own-t">Run all four steps at every table. Split the check when friends want to redeem.</p></div>
+      <div class="seg small" role="tablist" aria-label="Guest type">
+        <button class="seg-b" type="button" role="tab" aria-selected="true" data-visit="first">First visit</button>
+        <button class="seg-b" type="button" role="tab" aria-selected="false" data-visit="returning">Returning</button>
+      </div>
+      <ol class="steps">
+        <li class="glass stp"><span class="num">1</span><div class="stp-b"><div class="stp-t">Greet</div>
+          <p class="stp-do" data-for="first">Ask if it is their first visit. First time? Thank them with enthusiasm, they picked us.</p>
+          <p class="stp-do" data-for="returning" hidden>Ask if it is their first visit. Returning? Welcome them back and share what is new.</p>
+          <div class="line" data-for="first"><span class="eyebrow">Say</span><p class="q">“Is this your first time with us? Thank you for picking us, we’re so glad you’re here.”</p></div>
+          <div class="line" data-for="returning" hidden><span class="eyebrow">Say</span><p class="q">“Welcome back. Here’s what’s new this week.”</p></div>
+        </div></li>
+        <li class="glass stp"><span class="num">2</span><div class="stp-b"><div class="stp-t">Loyalty</div>
+          <p class="stp-do" data-for="first">Introduce rewards and point to the table tent QR so today counts.</p>
+          <p class="stp-do" data-for="returning" hidden>Ask if they are members. Not yet? Same QR.</p>
+          <div class="line" data-for="first"><span class="eyebrow">Say</span><p class="q">“We have a rewards program, and today can count. Just scan the QR on the table tent.”</p></div>
+          <div class="line" data-for="returning" hidden><span class="eyebrow">Say</span><p class="q">“Are you a rewards member? Not yet? Scan the QR on the table tent and today counts.”</p></div>
+        </div></li>
+        <li class="glass stp"><span class="num">3</span><div class="stp-b"><div class="stp-t">Prep the Bill</div>
+          <p class="stp-do" data-for="first">They just joined, so there is nothing to redeem yet. Their points start today.</p>
+          <p class="stp-do" data-for="returning" hidden>Member at the table? Look up their redemption options in Toast before the check goes down.</p>
+          <div class="line quiet" data-for="returning" hidden><span class="eyebrow">Do</span><p class="q">No script. This one happens in Toast, before you drop the check.</p></div>
+        </div></li>
+        <li class="glass stp"><span class="num">4</span><div class="stp-b"><div class="stp-t">Present</div>
+          <p class="stp-do" data-for="first">Thank them for joining and send them off with the promise.</p>
+          <p class="stp-do" data-for="returning" hidden>Share the options they have earned and let the guest decide if they want to use them today.</p>
+          <div class="line" data-for="first"><span class="eyebrow">Say</span><p class="q">“You’re all set. You show up, your points grow.”</p></div>
+          <div class="line" data-for="returning" hidden><span class="eyebrow">Say</span><p class="q">“You’ve earned your drink and $10 off. Want to use one today, or keep banking?”</p></div>
+        </div></li>
+      </ol>
+    </div>
+
+    <div class="role" data-role="hosts" hidden>
+      <div class="glass own"><div class="eyebrow">You own</div><p class="own-t">Plant the seed at the door and on the waitlist. Point guests to the table tent QR code.</p></div>
+      <div class="glass lines">
+        <div class="line"><span class="eyebrow">At the door</span><p class="q">“Welcome in. Are you a rewards member? When you sit down, scan the QR on the table tent so today counts.”</p></div>
+        <div class="line"><span class="eyebrow">On the waitlist</span><p class="q">“While you wait, our rewards are easy to join. Look for the QR on your table tent when you sit.”</p></div>
+        <div class="line"><span class="eyebrow">Returning guest</span><p class="q">“Welcome back. Your server will check what you’ve earned before the bill comes.”</p></div>
+      </div>
+    </div>
+
+    <div class="role" data-role="supervisors" hidden>
+      <div class="glass own"><div class="eyebrow">You own</div><p class="own-t">Spot check the steps each shift. Help split checks. Escalate Toast issues to the MOD.</p></div>
+      <div class="glass lines">
+        <div class="line"><span class="eyebrow">Spot check, to a server</span><p class="q">“Quick one on 22. Did they hear about rewards?”</p></div>
+        <div class="line"><span class="eyebrow">Splitting a check, to guests</span><p class="q">“Happy to split this so everyone cashes in their own.”</p></div>
+        <div class="line"><span class="eyebrow">Toast trouble, to a guest</span><p class="q">“Let me grab my manager so we get your points right.”</p></div>
+      </div>
+    </div>
+
+    <div class="role" data-role="managers" hidden>
+      <div class="glass own"><div class="eyebrow">You own</div><p class="own-t">Lead pre shift launch week. First call on redemption questions. Coach the steps.</p></div>
+      <div class="glass lines">
+        <div class="line"><span class="eyebrow">Pre shift</span><p class="q">“Three things every guest hears right. One reward per visit. One guest redeems per check. Points never expire.”</p></div>
+        <div class="line"><span class="eyebrow">Redemption question</span><p class="q">“Let me look at what you have banked. The biggest single redemption is $25, and the rest stays banked at full value.”</p></div>
+        <div class="line"><span class="eyebrow">The why, for pre shift</span><p class="q">“Guests choose what they redeem and when, and every visit moves them toward the next reward. Freedom for them, more visits for us.”</p></div>
+        <div class="line"><span class="eyebrow">Coaching</span><p class="q">“Lead with what they gain. Then answer the question.”</p></div>
+      </div>
+    </div>
+
+    <div class="role" data-role="gms" hidden>
+      <div class="glass own"><div class="eyebrow">You own</div><p class="own-t">Own the launch. Run the 10/19 pre shift. Confirm the register display and receipt line are live.</p></div>
+      <div class="glass chk">
+        <div class="eyebrow">Launch check</div>
+        <label><input type="checkbox"><span>10/19 pre shift run</span></label>
+        <label><input type="checkbox"><span>Register display live</span></label>
+        <label><input type="checkbox"><span>Receipt line live</span></label>
+      </div>
+      <div class="glass lines">
+        <div class="line"><span class="eyebrow">Pre shift opener</span><p class="q">“Toast moved us to a new rewards structure. Guests can’t stack anymore, so we lead with what they gain and we’re honest about the change.”</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAGE: GUESTS -->
+  <section class="page" id="page-guests">
+    <div class="section-label dot-sage rise d2">Tough Questions</div>
+    <p class="hint rise d2">Tap a question to see the ready answer.</p>
+    <div class="qa-list rise d3">
+      <div class="glass qa"><button class="qa-q" type="button" aria-expanded="false"><span>“I had $40 banked. Can I use it all today?”</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg></button>
+        <div class="qa-a" hidden><div class="line"><span class="eyebrow">Say</span><p class="q">“The biggest single redemption is now $25. The rest stays banked, and every point keeps its full value.”</p></div><p class="why"><b>Why it works.</b> It leads with what they keep, not what changed.</p></div></div>
+      <div class="glass qa"><button class="qa-q" type="button" aria-expanded="false"><span>“Can my friends and I combine rewards?”</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg></button>
+        <div class="qa-a" hidden><div class="line"><span class="eyebrow">Say</span><p class="q">“One guest redeems per check, so let’s split it and everyone cashes in their own.”</p></div><p class="why"><b>Why it works.</b> It turns a no into a plan.</p></div></div>
+      <div class="glass qa"><button class="qa-q" type="button" aria-expanded="false"><span>“Do my points expire?”</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg></button>
+        <div class="qa-a" hidden><div class="line"><span class="eyebrow">Say</span><p class="q">“Never. Bank as long as you like. Waiting never costs you a thing.”</p></div><p class="why"><b>Why it works.</b> Banking is a gain. Say it like one.</p></div></div>
+      <div class="glass qa"><button class="qa-q" type="button" aria-expanded="false"><span>“Why did you change it? I liked it better before.”</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg></button>
+        <div class="qa-a" hidden><div class="line"><span class="eyebrow">Say</span><p class="q">“You’re right, rewards work differently now and they don’t stack. What you gain, your points never expire and they work everywhere, in store, online, and mobile order and pay.”</p></div><p class="why"><b>Why it works.</b> Honest first, then the gain. Never blame anyone.</p></div></div>
+      <div class="glass qa"><button class="qa-q" type="button" aria-expanded="false"><span>“So my drink is free?”</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg></button>
+        <div class="qa-a" hidden><div class="line"><span class="eyebrow">Say</span><p class="q">“It’s your drink, earned. Any non alcoholic drink is yours, carafes excluded.”</p></div><p class="why"><b>Why it works.</b> They earned it. Free undersells that.</p></div></div>
+      <div class="glass qa"><button class="qa-q" type="button" aria-expanded="false"><span>“Can I use my drink and my pastry today?”</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg></button>
+        <div class="qa-a" hidden><div class="line"><span class="eyebrow">Say</span><p class="q">“It’s one reward per visit, so pick your favorite today. Everything else stays banked for next time.”</p></div><p class="why"><b>Why it works.</b> They choose. Nothing is lost.</p></div></div>
+      <div class="glass qa"><button class="qa-q" type="button" aria-expanded="false"><span>“Can I use it on a carafe?”</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg></button>
+        <div class="qa-a" hidden><div class="line"><span class="eyebrow">Say</span><p class="q">“Carafes are excluded, but any other non alcoholic drink is yours.”</p></div><p class="why"><b>Why it works.</b> Answer with what they can have.</p></div></div>
+      <div class="glass qa"><button class="qa-q" type="button" aria-expanded="false"><span>“Can I use my points online?”</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg></button>
+        <div class="qa-a" hidden><div class="line"><span class="eyebrow">Say</span><p class="q">“Yes. In store, online ordering, and mobile order and pay.”</p></div><p class="why"><b>Why it works.</b> A clean yes. Say it like one.</p></div></div>
+      <div class="glass qa"><button class="qa-q" type="button" aria-expanded="false"><span>“What are my points worth?”</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg></button>
+        <div class="qa-a" hidden><div class="line"><span class="eyebrow">Say</span><p class="q">“Every point is worth ten cents. 100 points is $10 off, and 250 is $25 off.”</p></div><p class="why"><b>Why it works.</b> Simple math builds trust.</p></div></div>
+    </div>
+  </section>
+
+  <!-- PAGE: QUIZ -->
+  <section class="page" id="page-quiz">
+    <div class="section-label dot-yellow rise d2">Pick the Best Response</div>
+    <div class="glass quiz rise d3" id="quiz">
+      <div class="qz-top"><span class="eyebrow" id="qzCount">Question 1</span><span class="qz-score" id="qzScore">0 right</span></div>
+      <div class="qz-bar"><i id="qzFill"></i></div>
+      <p class="qz-who" id="qzWho"></p>
+      <div class="card-title" id="qzPrompt"></div>
+      <div class="qz-opts" id="qzOpts"></div>
+      <div class="qz-fb" id="qzFb" hidden></div>
+      <div class="btn-row"><button class="btn primary" id="qzNext" type="button" hidden>Next</button></div>
+    </div>
+    <div class="glass quiz-done" id="qzDone" hidden>
+      <div class="eyebrow">Your score</div>
+      <div class="done-num" id="qzFinal"></div>
+      <p class="card-body" id="qzMsg"></p>
+      <div class="btn-row"><button class="btn primary" id="qzAgain" type="button">Run it again</button></div>
+    </div>
+  </section>
+
+  <div class="footer">you show up. your points grow. Questions go to your GM.</div>
+</div>
+
+<nav id="dock" data-mode="pages" aria-label="Rewards training pages">
+  <span class="dock-pill" aria-hidden="true"></span>
+  <a href="#page-rewards" data-c="153,201,97" data-on="#5a8a2a" data-on-dark="#b9e08a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="8.5" width="17" height="12" rx="2"/><path d="M3.5 12.5h17M12 8.5v12"/><path d="M12 8.5c-1.5-3.5-5.5-4-5.5-1.5 0 1.3 1.6 1.5 5.5 1.5zM12 8.5c1.5-3.5 5.5-4 5.5-1.5 0 1.3-1.6 1.5-5.5 1.5z"/></svg><span class="dl">Rewards</span></a>
+  <a href="#page-words" data-c="215,1,88" data-on="#d70158" data-on-dark="#ff6fa6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5h16v10H9.5L5 19v-3.5H4z"/><path d="M8 9.5h8M8 12.5h5"/></svg><span class="dl">Words</span></a>
+  <a href="#page-roles" data-c="60,92,104" data-on="#3c5c68" data-on-dark="#a9c9d3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8.5" r="3"/><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><circle cx="17" cy="9.5" r="2.4"/><path d="M16.5 14.2c2.6.2 4.5 1.9 4.5 4.3"/></svg><span class="dl">Roles</span></a>
+  <a href="#page-guests" data-c="155,196,188" data-on="#4f8a7f" data-on-dark="#9bc4bc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.6a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2-2.4 3.6"/><circle cx="12" cy="17" r=".6"/></svg><span class="dl">Guests</span></a>
+  <a href="#page-quiz" data-c="255,222,92" data-on="#9a7a08" data-on-dark="#ffde5c"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12.3l2.4 2.4 4.6-5"/></svg><span class="dl">Quiz</span></a>
+</nav>
+
+<script>
+/* Theme switch: follows the phone until tapped, then remembers the choice */
+(function () {
+  var root = document.documentElement, btn = document.getElementById('themeSwitch');
+  var sys = window.matchMedia('(prefers-color-scheme: dark)');
+  var meta = document.querySelector('meta[name="theme-color"]');
+  function apply(t) {
+    root.setAttribute('data-theme', t);
+    btn.setAttribute('aria-pressed', t === 'dark' ? 'true' : 'false');
+    if (meta) meta.setAttribute('content', t === 'dark' ? '#0b1a20' : '#f0f5f0');
+    window.dispatchEvent(new Event('mb-theme'));
+  }
+  apply(root.getAttribute('data-theme') || 'light');
+  btn.addEventListener('click', function () {
+    var t = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    try { localStorage.setItem('mb-theme', t); } catch (e) {}
+    apply(t);
+  });
+  if (sys.addEventListener) sys.addEventListener('change', function (e) {
+    var saved = null; try { saved = localStorage.getItem('mb-theme'); } catch (err) {}
+    if (!saved) apply(e.matches ? 'dark' : 'light');
+  });
+})();
+
+/* Lens refraction: Chromium only */
+(function () {
+  var b = navigator.userAgentData && navigator.userAgentData.brands;
+  if (b && b.some(function (x) { return /Chromium/.test(x.brand); })) document.documentElement.classList.add('refract');
+})();
+
+/* Specular highlight follows the pointer */
+(function () {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.app-icon, .glass').forEach(function (el) {
+    el.addEventListener('pointermove', function (e) {
+      var r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+      el.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+    });
+    el.addEventListener('pointerleave', function () { el.style.setProperty('--mx', '50%'); el.style.setProperty('--my', '25%'); });
+  });
+})();
+
+/* Header collapse + dock */
+(function () {
+  var root = document.documentElement;
+  var dock = document.getElementById('dock');
+  var wrap = document.querySelector('.page-wrap');
+  function hp() { root.style.setProperty('--hp', Math.min(Math.max(window.scrollY / 140, 0), 1).toFixed(3)); }
+  if (!dock) {
+    wrap.classList.add('no-pages');
+    window.addEventListener('scroll', function () { requestAnimationFrame(hp); }, { passive: true });
+    hp(); return;
+  }
+  var pagesMode = dock.getAttribute('data-mode') === 'pages';
+  if (!pagesMode) wrap.classList.add('no-pages');
+  var pill = dock.querySelector('.dock-pill');
+  var links = Array.prototype.slice.call(dock.querySelectorAll('a'));
+  var targets = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  var lastY = window.scrollY, current = -1, ticking = false, lockUntil = 0;
+  function isDark() { return root.getAttribute('data-theme') === 'dark'; }
+  /* Address bar update is skipped quietly where a preview window blocks it */
+  function setHash(h) { try { if (history.replaceState) history.replaceState(null, '', h); } catch (e) {} }
+
+  function placePill() { var a = links[current]; if (!a) return; pill.style.left = a.offsetLeft + 'px'; pill.style.width = a.offsetWidth + 'px'; }
+  function trackPill(ms) { var end = performance.now() + ms; (function step() { placePill(); if (performance.now() < end) requestAnimationFrame(step); })(); }
+  function paint() {
+    links.forEach(function (a, n) {
+      var on = n === current;
+      a.classList.toggle('on', on);
+      if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+      a.style.setProperty('--on', isDark() ? a.dataset.onDark : a.dataset.on);
+    });
+    if (links[current]) pill.style.setProperty('--pill', links[current].dataset.c);
+  }
+  function setActive(i) { if (i === current) return; current = i; paint(); trackPill(520); }
+  function setCompact(c) { if (dock.classList.contains('compact') === c) return; dock.classList.toggle('compact', c); trackPill(560); }
+  function showPage(i, fromTap) {
+    targets.forEach(function (t, n) { if (t) t.classList.toggle('active', n === i); });
+    setActive(i);
+    window.scrollTo({ top: 0, behavior: 'auto' });
+    if (fromTap) setHash(links[i].getAttribute('href'));
+  }
+  function update() {
+    ticking = false;
+    var y = window.scrollY; hp();
+    if (performance.now() < lockUntil) { lastY = y; return; }
+    var atBottom = window.innerHeight + y >= document.documentElement.scrollHeight - 40;
+    if (!pagesMode) {
+      var mark = window.innerHeight * 0.3, idx = 0;
+      targets.forEach(function (t, n) { if (t && t.getBoundingClientRect().top < mark) idx = n; });
+      if (atBottom) idx = targets.length - 1;
+      setActive(idx);
+    }
+    if (y < 120 || atBottom) setCompact(false);
+    else if (y > lastY + 6) setCompact(true);
+    else if (y < lastY - 6) setCompact(false);
+    lastY = y;
+  }
+  window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+  window.addEventListener('resize', placePill);
+  window.addEventListener('mb-theme', paint);
+  dock.addEventListener('click', function (e) {
+    var a = e.target.closest('a');
+    if (dock.classList.contains('compact')) { e.preventDefault(); setCompact(false); return; }
+    if (!a) return;
+    e.preventDefault();
+    var i = links.indexOf(a);
+    lockUntil = performance.now() + 1100;
+    if (pagesMode) { showPage(i, true); return; }
+    var t = targets[i];
+    if (t) t.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    setActive(i);
+  });
+
+  if (pagesMode) {
+    var start = links.findIndex(function (a) { return a.getAttribute('href') === location.hash; });
+    showPage(start > -1 ? start : 0);
+    window.addEventListener('load', function () { window.scrollTo(0, 0); hp(); });
+  }
+  update();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(placePill);
+})();
+</script>
+<script>
+/* Greenhouse pill: step back if we came from the Greenhouse, so it opens where the manager left it. Otherwise open it fresh. */
+(function () {
+  var a = document.getElementById('hubBack');
+  if (!a) return;
+  a.href = '../greenhouse.html';
+  /* Read the resolved address from the link itself. Preview windows have no real address, so fail quietly there. */
+  var HOME = '';
+  try { HOME = a.href.split('#')[0]; } catch (err) {}
+  a.addEventListener('click', function (e) {
+    var ref = '';
+    try { ref = (document.referrer || '').split('#')[0]; } catch (err) {}
+    if (HOME && /^https?:/.test(HOME) && ref.indexOf(HOME) === 0 && history.length > 1) { e.preventDefault(); history.back(); }
+  });
+})();
+</script>
+<script>
+/* Points check: rewards slide into the Ready box as points cross each threshold */
+(function () {
+  var range = document.getElementById('pts'), out = document.getElementById('ptsOut');
+  var ct = document.getElementById('readyCt'), empty = document.getElementById('readyEmpty'), next = document.getElementById('readyNext');
+  var cards = [].slice.call(document.querySelectorAll('.rw')), rows = [].slice.call(document.querySelectorAll('.ready-list li')), picked = null;
+  var names = {}; cards.forEach(function (c) { names[c.dataset.cost] = c.dataset.name; });
+  function draw() {
+    var p = +range.value, ready = 0, goal = null;
+    out.textContent = p;
+    cards.forEach(function (c) {
+      var ok = p >= +c.dataset.cost;
+      if (!ok && c === picked) picked = null;
+      c.classList.toggle('locked', !ok);
+      c.setAttribute('aria-disabled', String(!ok));
+    });
+    cards.forEach(function (c) { c.classList.toggle('picked', c === picked); c.setAttribute('aria-pressed', String(c === picked)); });
+    rows.forEach(function (r) {
+      var cost = +r.dataset.cost, ok = p >= cost;
+      if (ok) ready++; else if (goal === null) goal = cost;
+      r.classList.toggle('on', ok);
+      r.setAttribute('aria-hidden', String(!ok));
+      r.querySelector('small').textContent = 'Leaves ' + (p - cost) + ' banked';
+      r.classList.toggle('picked', !!picked && +picked.dataset.cost === cost);
+    });
+    ct.textContent = ready;
+    empty.hidden = ready > 0;
+    next.textContent = goal === null ? 'All four ready. They pick one.' : (goal - p) + ' more for ' + names[goal] + '.';
+  }
+  range.addEventListener('input', draw);
+  document.querySelectorAll('.step-btn').forEach(function (b) {
+    b.addEventListener('click', function () { range.value = Math.min(500, Math.max(0, +range.value + +b.dataset.step)); draw(); });
+  });
+  cards.forEach(function (c) {
+    c.addEventListener('click', function () {
+      if (c.classList.contains('locked')) return;
+      picked = picked === c ? null : c; draw();
+    });
+  });
+  draw();
+})();
+
+/* Say cards */
+(function () {
+  var says = [].slice.call(document.querySelectorAll('.say')), all = document.getElementById('sayAll');
+  function allOn() { return says.every(function (b) { return b.getAttribute('aria-pressed') === 'true'; }); }
+  function sync() { all.textContent = allOn() ? 'Hide all' : 'Show all'; }
+  says.forEach(function (b) { b.addEventListener('click', function () { b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') === 'true' ? 'false' : 'true'); sync(); }); });
+  all.addEventListener('click', function () { var on = allOn(); says.forEach(function (b) { b.setAttribute('aria-pressed', on ? 'false' : 'true'); }); sync(); });
+})();
+
+/* Roles and visit type */
+(function () {
+  var tabs = [].slice.call(document.querySelectorAll('[data-pick]'));
+  var roles = [].slice.call(document.querySelectorAll('.role'));
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () {
+      tabs.forEach(function (x) { x.setAttribute('aria-selected', String(x === t)); });
+      roles.forEach(function (r) { r.hidden = r.dataset.role !== t.dataset.pick; });
+    });
+  });
+  var vis = [].slice.call(document.querySelectorAll('[data-visit]'));
+  vis.forEach(function (v) {
+    v.addEventListener('click', function () {
+      vis.forEach(function (x) { x.setAttribute('aria-selected', String(x === v)); });
+      document.querySelectorAll('[data-for]').forEach(function (el) { el.hidden = el.dataset.for !== v.dataset.visit; });
+    });
+  });
+})();
+
+/* Guest questions */
+(function () {
+  document.querySelectorAll('.qa-q').forEach(function (q) {
+    var a = q.nextElementSibling;
+    q.addEventListener('click', function () {
+      var open = q.getAttribute('aria-expanded') === 'true';
+      q.setAttribute('aria-expanded', String(!open));
+      a.hidden = open;
+      if (!open) { a.classList.add('anim'); a.addEventListener('animationend', function () { a.classList.remove('anim'); }, { once:true }); }
+    });
+  });
+})();
+
+/* Quiz. Edit questions here. The first option in each list is the right one. Options shuffle every run. */
+var QUIZ = [
+  { who:'Guest asks', p:'“So my drink is free, right?”',
+    o:['“It’s your drink, earned. Any non alcoholic drink, carafes excluded.”', '“Yep, it’s on us.”', '“It’s free, but carafes don’t count.”'],
+    w:'Never say free or on us. They earned it, so say it.' },
+  { who:'Guest asks', p:'“I had $40 banked. Can I use it all today?”',
+    o:['“The biggest single redemption is $25. The rest stays banked at full value.”', '“Sorry, we capped it at $25.”', '“Anything over $25 is gone, unfortunately.”'],
+    w:'Lead with what they keep. Nothing was lost, the rest stays banked.' },
+  { who:'Guest asks', p:'“Can my friends and I combine our rewards?”',
+    o:['“One guest redeems per check, so let’s split it and everyone cashes in their own.”', '“Only one of you can use it.”', '“Rewards can’t be combined, sorry.”'],
+    w:'Turn the no into a plan. Split the check.' },
+  { who:'Guest asks', p:'“Do my points expire?”',
+    o:['“Never. Bank as long as you like.”', '“Use them or lose them, so redeem soon.”', '“Not for a while, but I’d use them.”'],
+    w:'Points never expire. Banking never costs the guest.' },
+  { who:'Guest asks', p:'“Can I use my drink and my pastry today?”',
+    o:['“It’s one reward per visit, so pick your favorite. The rest stays banked.”', '“Sure, enjoy both.”', '“No, you can only use one. That’s the rule.”'],
+    w:'One reward per visit. Let them choose and remind them nothing is lost.' },
+  { who:'Guest asks', p:'“Why did you change it? I liked it better before.”',
+    o:['“You’re right, it works differently now. What you gain, your points never expire and work everywhere.”', '“Corporate made us do it.”', '“It’s better now, trust me.”'],
+    w:'Honest first, then the gain. Never blame anyone.' },
+  { who:'Your table', p:'A rewards member is at your table. When do you look up their redemption options?',
+    o:['Before the check goes down.', 'After they pay.', 'Only if they ask.'],
+    w:'Step three. Prep the bill in Toast before you drop the check.' },
+  { who:'Your table', p:'A guest says it is their first visit. What comes first?',
+    o:['Thank them with enthusiasm, they picked us. Then introduce rewards and the QR.', 'Skip rewards, they are new.', 'Mention the QR when you drop the check.'],
+    w:'Greet, then loyalty. Today can count if they scan the table tent QR.' },
+  { who:'At the door', p:'A party on the waitlist asks about rewards. Best host answer?',
+    o:['“Look for the QR on your table tent when you sit, and today counts.”', '“Ask your server.”', '“You can sign up next time.”'],
+    w:'Hosts plant the seed and point to the table tent QR.' },
+  { who:'On your shift', p:'You are the supervisor and Toast will not pull up a guest’s rewards. What now?',
+    o:['Escalate it to the MOD.', 'Tell the guest the system is down.', 'Promise to add the points next visit.'],
+    w:'Supervisors escalate Toast issues to the MOD so the guest gets it right.' },
+  { who:'Pre shift', p:'A teammate asks why we moved to this rewards structure. Best answer?',
+    o:['Guests get freedom and control over how they redeem, and a reason to come back more often.', 'Toast made us change it.', 'To cut down on what guests can redeem.'],
+    w:'That is the why. Their points, their call, and every visit sets up the next one.' }
+];
+
+(function () {
+  var i = 0, score = 0, order = [];
+  var el = function (id) { return document.getElementById(id); };
+  var quiz = el('quiz'), done = el('qzDone'), opts = el('qzOpts'), fb = el('qzFb'), next = el('qzNext');
+  function shuffle(a) { a = a.slice(); for (var j = a.length - 1; j > 0; j--) { var r = Math.floor(Math.random() * (j + 1)); var t = a[j]; a[j] = a[r]; a[r] = t; } return a; }
+  function render() {
+    var q = QUIZ[i];
+    el('qzCount').textContent = 'Question ' + (i + 1) + ' of ' + QUIZ.length;
+    el('qzScore').textContent = score + ' right';
+    el('qzFill').style.width = (i / QUIZ.length * 100) + '%';
+    el('qzWho').textContent = q.who;
+    el('qzPrompt').textContent = q.p;
+    fb.hidden = true; next.hidden = true; opts.innerHTML = '';
+    shuffle(q.o.map(function (t, n) { return { t:t, ok:n === 0 }; })).forEach(function (o) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'opt'; b.textContent = o.t;
+      b.addEventListener('click', function () { pick(b, o.ok); });
+      b.dataset.ok = o.ok ? '1' : '0';
+      opts.appendChild(b);
+    });
+  }
+  function pick(b, ok) {
+    [].slice.call(opts.children).forEach(function (x) {
+      x.disabled = true;
+      if (x.dataset.ok === '1') x.classList.add('right');
+      else if (x !== b) x.classList.add('dim');
+    });
+    if (!ok) b.classList.add('wrong'); else score++;
+    el('qzScore').textContent = score + ' right';
+    fb.className = 'qz-fb ' + (ok ? 'ok' : 'no');
+    fb.innerHTML = '<b>' + (ok ? 'That’s it' : 'Not quite') + '</b>' + QUIZ[i].w;
+    fb.hidden = false;
+    next.textContent = i === QUIZ.length - 1 ? 'See my score' : 'Next';
+    next.hidden = false;
+    next.focus({ preventScroll:true });
+  }
+  next.addEventListener('click', function () {
+    i++;
+    if (i < QUIZ.length) { render(); quiz.scrollIntoView({ block:'nearest' }); return; }
+    quiz.hidden = true; done.hidden = false;
+    el('qzFinal').textContent = score + ' of ' + QUIZ.length;
+    el('qzMsg').textContent = score === QUIZ.length ? 'Ready for the floor.' : score >= 8 ? 'Close. Check the Words and Guests pages, then run it again.' : 'Spend five minutes on Words and Guests, then run it again.';
+  });
+  el('qzAgain').addEventListener('click', function () { i = 0; score = 0; done.hidden = true; quiz.hidden = false; render(); });
+  render();
+})();
+</script>
+</body>
+</html>
